@@ -1,0 +1,81 @@
+#cloud-config
+
+hostname: {{ .Hostname }}
+
+manage_etc_hosts: localhost
+
+ssh_authorized_keys:
+{{ range $index, $value := .Ssh_authorized_keys }}
+  - {{ $value }}
+{{ end }}
+
+write_files:
+  - path: /etc/systemd/network/static.network
+    permissions: 0644
+    content: |
+        [Match]
+        Name=en*
+        [Network]
+        Address={{ .Ip }}/24
+        Gateway={{ .Gateway }}
+        DNS=8.8.8.8
+        DNS=8.8.4.4
+  - path: /etc/environment
+    permissions: 0664
+    content: |
+        COREOS_PUBLIC_IPV4={{ .Ip }}
+        COREOS_PRIVATE_IPV4={{ .Ip }}
+
+coreos:
+  etcd:
+    #generate a new token for each unique cluster from https://discovery.etcd.io/new
+    #discovery: https://discovery.etcd.io/3b4f8671243ff94e47a3c6460d11aa38
+    addr: {{ .Ip }}:4001
+    peer-addr: {{ .Ip }}:7001
+  units:
+    - name: systemd-networkd.service
+      command: restart
+    - name: etcd.service
+      command: start
+    - name: fleet.service
+      command: start
+      runtime: no
+      content: |
+        [Unit]
+        Description=fleet
+        [Service]
+        Environment=FLEET_PUBLIC_IP={{ .Ip }}
+        ExecStart=/usr/bin/fleet
+    - name: docker-tcp.socket
+      command: start
+      enable: true
+      content: |
+        [Unit]
+        Description=Docker Socket for the API
+        [Socket]
+        ListenStream=2375
+        Service=docker.service
+        BindIPv6Only=both
+        [Install]
+        WantedBy=sockets.target
+    - name: media-data.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount data disk to /media/data
+        [Mount]
+        What=/dev/sda1
+        Where=/media/data
+        Type=btrfs
+    - name: docker-link.service
+      command: start
+      content: |
+        [Unit]
+        Description=Symlink docker to data drive
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        Requires=media-data.mount
+        Before=docker.service
+        ExecStart=/usr/bin/ln -s /media/data/docker /var/lib/docker
+
