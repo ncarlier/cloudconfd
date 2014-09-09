@@ -10,7 +10,7 @@ Installation
 
 Build cloudconfd:
 
-    go build -o cloudconfd main.go
+    make vendor_get && make
 
 Or download binary.
 

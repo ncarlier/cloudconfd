@@ -1,29 +1,29 @@
 package main
 
 import (
-	"os"
-	"io/ioutil"
 	"flag"
 	"fmt"
-	"log"
-	"strings"
-	"net/http"
-	"text/template"
-	"path/filepath"
 	"github.com/gorilla/mux"
 	"gopkg.in/yaml.v1"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
 )
 
 var (
-	laddr   = flag.String("l", ":8080", "HTTP service address (e.g.address, ':8080')")
+	laddr     = flag.String("l", ":8080", "HTTP service address (e.g.address, ':8080')")
 	templates = template.New("cloudconfd")
 )
 
 type Config struct {
-    Hostname string
-    Ip string
-    Gateway string
-    Ssh_authorized_keys []string
+	Hostname            string
+	Ip                  string
+	Gateway             string
+	Ssh_authorized_keys []string
 }
 
 func parseTemplateFiles() {
@@ -37,7 +37,7 @@ func parseTemplateFiles() {
 			}
 			text := string(filetext)
 			var extension = filepath.Ext(filename)
-			var name = filename[0:len(filename)-len(extension)]
+			var name = filename[0 : len(filename)-len(extension)]
 			template.Must(templates.New(name).Parse(text))
 			log.Println(fmt.Sprintf("Template %s loaded.", name))
 		}
