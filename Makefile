@@ -18,10 +18,10 @@ clean-dist:
 
 dist: clean-dist
 	mkdir -p dist/linux/amd64 && GOOS=linux GOARCH=amd64 go build -o dist/linux/amd64/cloudconfd ./src
-	mkdir -p dist/linux/i386  && GOOS=linux GOARCH=386 go build -o dist/linux/i386/cloudconfd ./src
+#	mkdir -p dist/linux/i386  && GOOS=linux GOARCH=386 go build -o dist/linux/i386/cloudconfd ./src
 
 release: dist
-	godep restore
-	tar -cvzf cloudconfd-linux-amd64-$(TAG).amd64tar.gz -C dist/linux/amd64 cloudconfd
-	tar -cvzf cloudconfd-linux-i386-i386$(TAG).tar.gz -C dist/linux/i386 cloudconfd
+#	godep restore
+	tar -cvzf cloudconfd-linux-amd64-$(TAG).tar.gz -C dist/linux/amd64 cloudconfd
+#	tar -cvzf cloudconfd-linux-i386-i386$(TAG).tar.gz -C dist/linux/i386 cloudconfd
 

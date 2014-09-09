@@ -10,13 +10,12 @@ Installation
 
 Linux binaries for release [0.0.1](https://github.com/ncarlier/cloudconfd/releases)
 
-* [amd64](https://github.com/ncarlier/cloudconfd/releases/download/0.0.1/cloudconfd-linux-amd64-0.0.1.tar.gz)
-* [i386](https://github.com/ncarlier/cloudconfd/releases/download/0.0.1/cloudconfd-linux-i386-0.0.1.tar.gz)
+* [amd64](https://github.com/ncarlier/cloudconfd/releases/download/v0.0.1/cloudconfd-linux-amd64-v0.0.1.tar.gz)
 
 Download the version you need, untar, and install to your PATH.
 
-    $ wget https://github.com/ncarlier/cloudconfd/releases/download/0.0.1/cloudconfd-linux-amd64-0.0.1.tar.gz
-    $ tar xvzf cloudconfd-linux-amd64-0.0.1.tar.gz
+    $ wget https://github.com/ncarlier/cloudconfd/releases/download/v0.0.1/cloudconfd-linux-amd64-v0.0.1.tar.gz
+    $ tar xvzf cloudconfd-linux-amd64-v0.0.1.tar.gz
     $ ./cloudconfd
 
 Create your own user-data template in the "templates" directory. The filename define the configuration name.
