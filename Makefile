@@ -1,48 +1,27 @@
-.PHONY: build doc fmt lint run test vendor_clean vendor_get vendor_update vet
+.SILENT :
+.PHONY : build clean fmt
 
-# Prepend our _vendor directory to the system GOPATH
-# so that import path resolution will prioritize
-# our third party snapshots.
-GOPATH := ${PWD}/_vendor:${GOPATH}
-export GOPATH
+TAG:=`git describe --abbrev=0 --tags`
+LDFLAGS:=-X main.buildVersion $(TAG)
 
-default: build
+all: build
 
-build: vet
-	go build -v -o ./bin/cloudconfd ./src
+build:
+	echo "Building cloudconfd..."
+	go build -ldflags "$(LDFLAGS)" -o bin/cloudconfd ./src
 
-fmt:
-	go fmt ./src/...
+clean: clean-dist
+	rm -rf bin
 
-# https://github.com/golang/lint
-# go get github.com/golang/lint/golint
-lint:
-	golint ./src
+clean-dist:
+	rm -rf dist
 
-run: build
-	./bin/cloudconfd
+dist: clean-dist
+	mkdir -p dist/linux/amd64 && GOOS=linux GOARCH=amd64 go build -o dist/linux/amd64/cloudconfd ./src
+	mkdir -p dist/linux/i386  && GOOS=linux GOARCH=386 go build -o dist/linux/i386/cloudconfd ./src
 
-clean:
-	rm -dRf ./_vendor/src && rm ./bin/cloudconfd
+release: dist
+	godep restore
+	tar -cvzf cloudconfd-linux-amd64-$(TAG).amd64tar.gz -C dist/linux/amd64 cloudconfd
+	tar -cvzf cloudconfd-linux-i386-i386$(TAG).tar.gz -C dist/linux/i386 cloudconfd
 
-# We have to set GOPATH to just the _vendor
-# directory to ensure that `go get` doesn't
-# update packages in our primary GOPATH instead.
-# This will happen if you already have the package
-# installed in GOPATH since `go get` will use
-# that existing location as the destination.
-vendor_get: vendor_clean
-	GOPATH=${PWD}/_vendor go get -d -u -v \
-		   github.com/gorilla/mux \
-		   gopkg.in/yaml.v1
-
-vendor_update: vendor_get
-	rm -rf `find ./_vendor/src -type d -name .git` \
-		&& rm -rf `find ./_vendor/src -type d -name .hg` \
-		&& rm -rf `find ./_vendor/src -type d -name .bzr` \
-		&& rm -rf `find ./_vendor/src -type d -name .svn`
-
-# http://godoc.org/code.google.com/p/go.tools/cmd/vet
-# go get code.google.com/p/go.tools/cmd/vet
-vet:
-	go vet ./src/...
